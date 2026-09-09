@@ -1,4 +1,4 @@
-import { AuthScreenHeader } from '@/components/auth/screen-header';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { ScrollView } from '@/components/ui/scroll-view';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
@@ -17,7 +17,7 @@ export default function TermsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <AuthScreenHeader title='Terms & Conditions' />
+      <ScreenHeader title='Terms & Conditions' />
 
       <ScrollView
         contentContainerStyle={{
@@ -28,16 +28,16 @@ export default function TermsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* The kit sets this body at 16/28 rather than the 16/24 of `field`. */}
-        <Text variant='field' lightColor={bodyColor} style={{ lineHeight: 28 }}>
+        <Text variant='body' lightColor={bodyColor}>
           {BODY}
         </Text>
 
         <View style={{ marginTop: 32 }}>
-          <Text variant='sectionTitle'>Privacy</Text>
+          <Text variant='subtitle'>Privacy</Text>
           <Text
-            variant='field'
+            variant='body'
             lightColor={bodyColor}
-            style={{ marginTop: 16, lineHeight: 28 }}
+            style={{ marginTop: 16 }}
           >
             {BODY}
           </Text>

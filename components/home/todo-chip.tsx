@@ -39,7 +39,7 @@ export function TodoChip({
         contentFit='cover'
       />
 
-      <Text variant='micro' style={{ width: 80 }}>
+      <Text variant='body' style={{ width: 120 }}>
         {item.label}
       </Text>
 

@@ -87,7 +87,7 @@ export default function OnboardingScreen() {
         />
 
         <Text
-          variant='display'
+          variant='title'
           lightColor={onBrand}
           style={{ marginTop: 24, paddingHorizontal: 24 }}
         >

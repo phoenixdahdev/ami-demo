@@ -3,22 +3,9 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 const IS_DEV = process.env.APP_VARIANT === "development";
 const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
-/**
- * Placeholder brand. "FinTech" is what the screens already say — "Welcome to
- * FinTech" on the phone step, "Unlock FinTech" on the biometric prompt — so the
- * display name matches the copy until the real name lands.
- *
- * Renaming later is these two constants plus that copy; `slug` and `scheme`
- * deliberately stay put (see below).
- */
 const APP_NAME = "FinTech";
 const BASE_IDENTIFIER = "dev.fynix.fintech.app";
 
-/**
- * Each variant gets its own identifier so development, preview and production
- * builds install side by side on one device instead of overwriting each other.
- * `APP_VARIANT` is set per build profile in eas.json.
- */
 const getBundleIdentifier = () => {
   if (IS_DEV) return `${BASE_IDENTIFIER}.dev`;
   if (IS_PREVIEW) return `${BASE_IDENTIFIER}.preview`;
@@ -79,11 +66,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   },
 
-  web: {
-    output: "static",
-    favicon: "./assets/images/favicon.png",
-  },
-
   plugins: [
     "expo-asset",
     "expo-router",
@@ -96,6 +78,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         imageWidth: 115,
         resizeMode: "contain",
         backgroundColor: "#FFFFFF",
+      },
+    ],
+    [
+      "expo-image-picker",
+      {
+        // The loan application asks for a photo of an ID; say why before iOS
+        // shows the prompt.
+        photosPermission:
+          "Allow $(PRODUCT_NAME) to access your photos so you can attach your ID and payment slip.",
       },
     ],
     [

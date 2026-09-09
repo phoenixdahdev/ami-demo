@@ -23,12 +23,11 @@ export function SectionPlaceholder({
         edges={['top']}
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}
       >
-        <Text variant='screenTitle' style={{ textAlign: 'center' }}>
+        <Text variant='title' style={{ textAlign: 'center' }}>
           {title}
         </Text>
         <Text
-          variant='bodySm'
-          lightColor={muted}
+          variant='caption'
           style={{ textAlign: 'center', marginTop: 8 }}
         >
           {description}

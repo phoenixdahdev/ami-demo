@@ -26,10 +26,8 @@ const isMode = (value: unknown): value is Mode =>
  * sheet presentation, and anything reading the OS scheme *outside* React (root
  * layouts do exactly that to colour the system UI).
  *
- * `Appearance.setColorScheme` landed in React Native 0.73 and react-native-web
- * has never implemented it, so feature-detect rather than assume. On web the
- * store alone drives the theme, which is why the toggle works there without
- * this call.
+ * `Appearance.setColorScheme` landed in React Native 0.73, so feature-detect
+ * rather than assume.
  */
 function syncNativeAppearance(mode: Mode) {
   if (typeof Appearance.setColorScheme !== 'function') return;
@@ -39,9 +37,7 @@ function syncNativeAppearance(mode: Mode) {
 }
 
 /**
- * Where the choice is persisted. SecureStore has no web implementation and
- * throws there, so web gets `localStorage` instead — which is also what makes
- * the toggle survive a reload in the browser.
+ * Where the choice is persisted.
  */
 const secureStorage: StateStorage = {
   getItem: (name) => SecureStore.getItemAsync(name),
@@ -49,17 +45,10 @@ const secureStorage: StateStorage = {
   removeItem: (name) => SecureStore.deleteItemAsync(name),
 };
 
-const localStorageAdapter: StateStorage = {
-  getItem: (name) => localStorage.getItem(name),
-  setItem: (name, value) => localStorage.setItem(name, value),
-  removeItem: (name) => localStorage.removeItem(name),
-};
-
 /**
  * Persistence is a convenience and must never be able to break boot, so every
- * call is swallowed: a missing store, a locked keychain, or `localStorage`
- * being absent during static web rendering all leave the default in place
- * rather than throwing.
+ * call is swallowed: a missing store or a locked keychain leaves the default
+ * in place rather than throwing.
  */
 const safeStorage = (base: StateStorage): StateStorage => ({
   getItem: async (name) => {
@@ -105,7 +94,7 @@ export const useModeStore = create<ModeState>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() =>
-        safeStorage(Platform.OS === 'web' ? localStorageAdapter : secureStorage)
+        safeStorage(secureStorage)
       ),
       // Only the choice is persisted; `setMode` is rebuilt on every launch.
       partialize: ({ mode }) => ({ mode }),

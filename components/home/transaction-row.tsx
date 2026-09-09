@@ -22,19 +22,19 @@ export function TransactionRow({ item }: { item: Transaction }) {
       />
 
       <View style={{ flex: 1 }}>
-        <Text variant='bodySm' lightColor={strong}>
+        <Text variant='body' lightColor={strong}>
           {item.merchant}
         </Text>
-        <Text variant='micro' lightColor={muted}>
+        <Text variant='caption' numberOfLines={1}>
           {item.category}
         </Text>
       </View>
 
       <View style={{ alignItems: 'flex-end' }}>
-        <Text variant='action' lightColor={strong}>
+        <Text variant='body' lightColor={strong}>
           {item.amount}
         </Text>
-        <Text variant='micro' lightColor={muted}>
+        <Text variant='caption'>
           {item.date}
         </Text>
       </View>

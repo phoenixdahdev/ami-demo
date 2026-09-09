@@ -1,4 +1,4 @@
-import { AuthScreenHeader } from '@/components/auth/screen-header';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { InputOTP } from '@/components/ui/input-otp';
 import { LoadingOverlay } from '@/components/ui/spinner';
 import { Text } from '@/components/ui/text';
@@ -69,14 +69,14 @@ export function OtpVerifyScreen({ onVerified }: Props) {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-      <AuthScreenHeader
+      <ScreenHeader
         title='Verify OTP'
         subtitle={
           <View style={{ flexDirection: 'row', gap: 6 }}>
-            <Text variant='bodySm' lightColor={muted}>
+            <Text variant='caption'>
               Code is sent to
             </Text>
-            <Text variant='bodySm' lightColor={bodyColor}>
+            <Text variant='body' lightColor={bodyColor}>
               {country.dial} {formatPhone(phone)}
             </Text>
           </View>
@@ -117,16 +117,18 @@ export function OtpVerifyScreen({ onVerified }: Props) {
       <View
         style={{
           marginTop: 48,
+          paddingHorizontal: 16,
           flexDirection: 'row',
+          flexWrap: 'wrap',
           justifyContent: 'center',
           alignItems: 'center',
           gap: 6,
         }}
       >
-        <Text variant='bodySm'>Didn’t get the code?</Text>
+        <Text variant='body'>Didn’t get the code?</Text>
 
         {remaining > 0 ? (
-          <Text variant='action' lightColor={primary}>
+          <Text variant='body' lightColor={primary}>
             Resend in {asClock(remaining)}
           </Text>
         ) : (
@@ -137,7 +139,7 @@ export function OtpVerifyScreen({ onVerified }: Props) {
             accessibilityLabel='Resend code'
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
           >
-            <Text variant='action' lightColor={primary}>
+            <Text variant='body' lightColor={primary}>
               Resend
             </Text>
           </Pressable>

@@ -1,6 +1,5 @@
 import { Country, DEFAULT_COUNTRY } from '@/constants/countries';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
 import { create } from 'zustand';
 import {
   createJSONStorage,
@@ -69,12 +68,6 @@ const secureStorage: StateStorage = {
   getItem: (name) => SecureStore.getItemAsync(name),
   setItem: (name, value) => SecureStore.setItemAsync(name, value),
   removeItem: (name) => SecureStore.deleteItemAsync(name),
-};
-
-const localStorageAdapter: StateStorage = {
-  getItem: (name) => localStorage.getItem(name),
-  setItem: (name, value) => localStorage.setItem(name, value),
-  removeItem: (name) => localStorage.removeItem(name),
 };
 
 /** Persistence is a convenience; a failure must never keep the app from booting. */
@@ -156,7 +149,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() =>
-        safeStorage(Platform.OS === 'web' ? localStorageAdapter : secureStorage)
+        safeStorage(secureStorage)
       ),
       // Only what a returning user should still have. The phone/OTP draft is
       // deliberately left behind.

@@ -12,6 +12,10 @@ const { Icon, Label, VectorIcon } = NativeTabs.Trigger;
  * The kit draws Cards / Accounts / Cashback / Savings as chips inside the home
  * screen (271:1158–271:1165). They are the app's native tab bar instead, so the
  * platform owns the selection affordance and the home screen keeps that space.
+ *
+ * Order and naming follow how a bank is actually used rather than the kit:
+ * accounts lead, and Cashback is a Loan tab. `(accounts)` is the group, so it
+ * owns "/" and is what the app opens on.
  */
 export default function TabsLayout() {
   // The tab bar has its own pair of tokens: idle tabs are the muted grey, the
@@ -33,17 +37,7 @@ export default function TabsLayout() {
       labelVisibilityMode='labeled'
       disableTransparentOnScrollEdge={true}
     >
-      <NativeTabs.Trigger name='(cards)'>
-        {Platform.select({
-          ios: <Icon sf='creditcard.fill' />,
-          android: (
-            <Icon src={<VectorIcon family={MaterialIcons} name='credit-card' />} />
-          ),
-        })}
-        <Label>Cards</Label>
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name='accounts'>
+      <NativeTabs.Trigger name='(accounts)'>
         {Platform.select({
           ios: <Icon sf='building.columns.fill' />,
           android: (
@@ -53,14 +47,24 @@ export default function TabsLayout() {
         <Label>Accounts</Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name='cashback'>
+      <NativeTabs.Trigger name='cards'>
         {Platform.select({
-          ios: <Icon sf='percent' />,
+          ios: <Icon sf='creditcard.fill' />,
           android: (
-            <Icon src={<VectorIcon family={MaterialIcons} name='percent' />} />
+            <Icon src={<VectorIcon family={MaterialIcons} name='credit-card' />} />
           ),
         })}
-        <Label>Cashback</Label>
+        <Label>Cards</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name='loan'>
+        {Platform.select({
+          ios: <Icon sf='dollarsign.circle.fill' />,
+          android: (
+            <Icon src={<VectorIcon family={MaterialIcons} name='dollar-sign' />} />
+          ),
+        })}
+        <Label>Loan</Label>
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name='savings'>

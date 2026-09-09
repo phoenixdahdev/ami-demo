@@ -77,6 +77,17 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="transfer" options={{ headerShown: false }} />
+        <Stack.Screen name="loan-apply" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="choose-source"
+          options={{
+            headerShown: false,
+            presentation: "formSheet",
+            sheetGrabberVisible: false,
+            sheetAllowedDetents: [0.9],
+          }}
+        />
 
         <Stack.Screen
           name="sheet"

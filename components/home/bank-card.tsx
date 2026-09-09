@@ -65,20 +65,20 @@ export function BankCard({ card, width }: { card: BankCardModel; width: number }
       </View>
 
       <View style={{ flex: 1 }}>
-        <Text variant='field' lightColor={onCard}>
+        <Text variant='body' lightColor={onCard}>
           {card.label}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Text variant='micro' lightColor={onCard}>
+          <Text variant='body' lightColor={onCard}>
             ••••
           </Text>
-          <Text variant='micro' lightColor={onCard}>
+          <Text variant='body' lightColor={onCard}>
             {card.last4}
           </Text>
         </View>
       </View>
 
-      <Text variant='field' lightColor={amountColor}>
+      <Text variant='body' lightColor={amountColor}>
         {card.balance}
       </Text>
     </View>

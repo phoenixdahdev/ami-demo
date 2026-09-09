@@ -10,26 +10,35 @@ type Props = {
   title: string;
   /** A node rather than a string: the OTP screen colours the number inline. */
   subtitle?: React.ReactNode;
+  /** Sits opposite the back arrow — a scan button, an @tag, and so on. */
+  trailing?: React.ReactNode;
   onBack?: () => void;
 };
 
 /**
- * Back arrow, title and subtitle, positioned as every auth frame in the kit
- * does it: arrow 10pt under the status bar, title 16pt below that, subtitle 8pt
- * below the title.
+ * The kit's headline block (430:4370/430:4371): the arrow 10pt under the status
+ * bar with an optional trailing control opposite it, the title 16pt below, and
+ * a subtitle 8pt under that.
  */
-export function AuthScreenHeader({ title, subtitle, onBack }: Props) {
+export function ScreenHeader({ title, subtitle, trailing, onBack }: Props) {
   const text = useColor('text');
 
   return (
     <View style={{ paddingHorizontal: 16 }}>
+      <View
+        style={{
+          marginTop: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
       <Pressable
         onPress={onBack ?? (() => router.back())}
         accessibilityRole='button'
         accessibilityLabel='Go back'
         hitSlop={12}
         style={({ pressed }) => ({
-          marginTop: 10,
           width: 24,
           height: 24,
           opacity: pressed ? 0.5 : 1,
@@ -42,8 +51,10 @@ export function AuthScreenHeader({ title, subtitle, onBack }: Props) {
           strokeWidth={1.5}
         />
       </Pressable>
+        {trailing}
+      </View>
 
-      <Text variant='screenTitle' style={{ marginTop: 16 }}>
+      <Text variant='title' style={{ marginTop: 16 }}>
         {title}
       </Text>
 

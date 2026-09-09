@@ -21,6 +21,7 @@ export default function CountryCodeScreen() {
 
   const [query, setQuery] = useState('');
 
+  const surface = useColor('background');
   const text = useColor('text');
   const muted = useColor('textMuted');
   const success = useColor('green');
@@ -46,8 +47,8 @@ export default function CountryCodeScreen() {
   };
 
   return (
-    <View style={{ flex: 1, paddingTop: 24 }}>
-      <Text variant='screenTitle' style={{ paddingHorizontal: 16 }}>
+    <View style={{ flex: 1, paddingTop: 24, backgroundColor: surface }}>
+      <Text variant='title' style={{ paddingHorizontal: 16 }}>
         Country code
       </Text>
 
@@ -111,8 +112,8 @@ export default function CountryCodeScreen() {
                 opacity: pressed ? 0.5 : 1,
               })}
             >
-              <Text variant='screenTitle'>{item.flag}</Text>
-              <Text variant='field' style={{ flex: 1 }}>
+              <Text variant='title'>{item.flag}</Text>
+              <Text variant='body' style={{ flex: 1 }}>
                 {item.name} ({item.dial})
               </Text>
               {isSelected ? (
@@ -127,8 +128,7 @@ export default function CountryCodeScreen() {
         }}
         ListEmptyComponent={
           <Text
-            variant='bodySm'
-            lightColor={muted}
+            variant='caption'
             style={{ textAlign: 'center', marginTop: 24 }}
           >
             No countries match “{query}”

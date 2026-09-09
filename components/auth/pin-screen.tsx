@@ -83,7 +83,7 @@ export function PinScreen({
         )}
       </View>
 
-      <Text variant='sectionTitle' style={{ textAlign: 'center' }}>
+      <Text variant='subtitle' style={{ textAlign: 'center' }}>
         {title}
       </Text>
 
@@ -93,10 +93,10 @@ export function PinScreen({
 
       {/* Always reserved, so the keypad sits identically on every PIN screen
           and nothing shifts when a message appears. */}
-      <View style={{ height: 20, marginTop: 8 }}>
+      <View style={{ height: 24, marginTop: 8 }}>
         {error ? (
           <Text
-            variant='micro'
+            variant='body'
             lightColor={danger}
             style={{ textAlign: 'center' }}
             accessibilityLiveRegion='polite'

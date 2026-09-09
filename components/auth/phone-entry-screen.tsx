@@ -1,4 +1,4 @@
-import { AuthScreenHeader } from '@/components/auth/screen-header';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { AvoidKeyboard } from '@/components/ui/avoid-keyboard';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -53,10 +53,10 @@ export function PhoneEntryScreen({
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-      <AuthScreenHeader
+      <ScreenHeader
         title={title}
         subtitle={
-          <Text variant='bodySm' lightColor={muted}>
+          <Text variant='caption'>
             Insert your phone number to continue
           </Text>
         }
@@ -84,7 +84,7 @@ export function PhoneEntryScreen({
               opacity: pressed ? 0.5 : 1,
             })}
           >
-            <Text variant='display'>{country.flag}</Text>
+            <Text variant='title'>{country.flag}</Text>
             <HugeiconsIcon
               icon={ArrowDown01Icon}
               size={20}
@@ -93,7 +93,7 @@ export function PhoneEntryScreen({
             />
           </Pressable>
 
-          <Text variant='field' lightColor={muted} style={{ marginLeft: 10 }}>
+          <Text variant='caption' style={{ marginLeft: 10 }}>
             {country.dial}
           </Text>
 
@@ -146,7 +146,7 @@ export function PhoneEntryScreen({
             gap: 6,
           }}
         >
-          <Text variant='bodySm'>{altPrompt}</Text>
+          <Text variant='body'>{altPrompt}</Text>
           <Pressable
             onPress={onAltPress}
             hitSlop={8}
@@ -154,7 +154,7 @@ export function PhoneEntryScreen({
             accessibilityLabel={altLabel}
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
           >
-            <Text variant='action' lightColor={primary}>
+            <Text variant='body' lightColor={primary}>
               {altLabel}
             </Text>
           </Pressable>
@@ -165,13 +165,21 @@ export function PhoneEntryScreen({
 
       <View style={{ paddingHorizontal: 16, alignItems: 'center' }}>
         {showTerms ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text variant='micro' lightColor={bodyColor}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Text variant='body' lightColor={bodyColor}>
               By signing up, you accept our
             </Text>
             <Link href='/sign-up/terms' asChild>
               <Pressable hitSlop={8}>
-                <Text variant='micro' lightColor={primary}>
+                <Text variant='body' lightColor={primary}>
                   Terms & Conditions
                 </Text>
               </Pressable>

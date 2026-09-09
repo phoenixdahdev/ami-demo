@@ -7,23 +7,43 @@ import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Ico
 import MoreHorizontalCircle01Icon from '@hugeicons-pro/core-stroke-rounded/MoreHorizontalCircle01Icon';
 import Wallet01Icon from '@hugeicons-pro/core-stroke-rounded/Wallet01Icon';
 import { HugeiconsIcon, IconSvgElement } from '@hugeicons/react-native';
+import { router } from 'expo-router';
 import { Pressable } from 'react-native';
 
 /** Figma 41:131 / 271:1178 — 40pt tall, Basic / 200 fill, 8pt corners. */
 const HEIGHT = 40;
 
-function Action({
-  icon,
-  label,
-  onPress,
-}: {
+export type ActionTone = 'neutral' | 'brand';
+
+export type QuickAction = {
   icon: IconSvgElement;
+  /** Omit for a trailing "more" button, which sizes to its icon. */
   label?: string;
   onPress?: () => void;
-}) {
-  const fill = useColor('card');
-  const iconColor = useColor('text');
+};
+
+/** What the Cards frame draws. */
+export const DEFAULT_ACTIONS: QuickAction[] = [
+  { icon: Wallet01Icon, label: 'Add money' },
+  {
+    icon: ArrowRight01Icon,
+    label: 'Transfer',
+    onPress: () => router.push('/transfer'),
+  },
+  { icon: MoreHorizontalCircle01Icon },
+];
+
+function Action({ action, tone }: { action: QuickAction; tone: ActionTone }) {
+  const neutralFill = useColor('card');
+  const neutralInk = useColor('text');
+  const brandFill = useColor('brandSubtle');
+  const brandInk = useColor('primary');
   const feedback = useHaptics();
+
+  const isBrand = tone === 'brand';
+  const fill = isBrand ? brandFill : neutralFill;
+  const ink = isBrand ? brandInk : neutralInk;
+  const { icon, label, onPress } = action;
 
   return (
     <Pressable
@@ -41,29 +61,53 @@ function Action({
         backgroundColor: fill,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: label ? 'flex-start' : 'center',
-        paddingHorizontal: label ? 12 : 0,
-        gap: 8,
+        // Brand pills centre their contents; the kit's grey ones sit icon-left.
+        justifyContent: !label || isBrand ? 'center' : 'flex-start',
+        paddingHorizontal: label ? 10 : 0,
+        gap: 6,
         opacity: pressed ? 0.6 : 1,
       })}
     >
       <HugeiconsIcon
         icon={icon}
-        size={24}
-        color={iconColor}
-        strokeWidth={1.5}
+        size={isBrand ? 20 : 24}
+        color={ink}
+        strokeWidth={isBrand ? 2 : 1.5}
       />
-      {label ? <Text variant='action'>{label}</Text> : null}
+      {label ? (
+        <Text variant='body' lightColor={ink} numberOfLines={1}>
+          {label}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }
 
-export function QuickActions() {
+/**
+ * The row of account actions.
+ *
+ * `neutral` is the kit's grey-on-white treatment, which the Cards frame draws.
+ * `brand` is the tinted-blue pill from the reference the Accounts balance panel
+ * follows.
+ */
+export function QuickActions({
+  actions = DEFAULT_ACTIONS,
+  tone = 'neutral',
+  gutter = 16,
+}: {
+  actions?: QuickAction[];
+  tone?: ActionTone;
+  gutter?: number;
+}) {
   return (
-    <View style={{ flexDirection: 'row', gap: 16, paddingHorizontal: 16 }}>
-      <Action icon={Wallet01Icon} label='Add money' />
-      <Action icon={ArrowRight01Icon} label='Transfer' />
-      <Action icon={MoreHorizontalCircle01Icon} />
+    <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: gutter }}>
+      {actions.map((action, index) => (
+        <Action
+          key={action.label ?? `more-${index}`}
+          action={action}
+          tone={tone}
+        />
+      ))}
     </View>
   );
 }

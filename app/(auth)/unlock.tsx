@@ -97,7 +97,7 @@ export default function UnlockScreen() {
               />
             </Avatar>
             <Text
-              variant='bodySm'
+              variant='body'
               lightColor={bodyColor}
               style={{ marginTop: 16 }}
             >
@@ -116,7 +116,7 @@ export default function UnlockScreen() {
               opacity: pressed ? 0.5 : 1,
             })}
           >
-            <Text variant='bodySm' lightColor={primary}>
+            <Text variant='body' lightColor={primary}>
               Forgot PIN?
             </Text>
           </Pressable>

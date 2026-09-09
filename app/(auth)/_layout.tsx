@@ -1,3 +1,4 @@
+import { useColor } from '@/hooks/use-color';
 import { Stack } from 'expo-router';
 
 /**
@@ -9,6 +10,8 @@ import { Stack } from 'expo-router';
  * reached from the sign-up phone step.
  */
 export default function AuthLayout() {
+  const surface = useColor('background');
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name='onboarding' />
@@ -22,12 +25,18 @@ export default function AuthLayout() {
 
       <Stack.Screen
         name='sign-up/terms'
-        options={{ presentation: 'modal' }}
+        options={{
+          presentation: 'modal',
+          contentStyle: { backgroundColor: surface },
+        }}
       />
       <Stack.Screen
         name='country-code'
         options={{
           presentation: 'formSheet',
+          // Presented screens paint nothing of their own, and every `View`
+          // here defaults to transparent.
+          contentStyle: { backgroundColor: surface },
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.95],
         }}

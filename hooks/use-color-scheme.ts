@@ -6,9 +6,8 @@ import { useModeStore } from '@/stores/mode-store';
  * The one place the app's colour scheme is decided.
  *
  * The mode store wins whenever it holds an explicit choice, so an in-app
- * light/dark toggle works on every platform — including web, where
- * react-native-web has no `Appearance.setColorScheme` for the toggle to write
- * through. On `'system'` this is just the OS scheme.
+ * light/dark toggle works regardless of what the OS reports. On `'system'`
+ * this is just the OS scheme.
  *
  * React Native 0.86 widened `ColorSchemeName` to `'light' | 'dark' |
  * 'unspecified'`. The theme is binary — `Colors` only has `light` and `dark`

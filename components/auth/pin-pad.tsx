@@ -51,7 +51,7 @@ function Key({
       })}
     >
       {label ? (
-        <Text variant='display' lightColor={digitColor}>
+        <Text variant='title' lightColor={digitColor}>
           {label}
         </Text>
       ) : (

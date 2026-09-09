@@ -110,6 +110,9 @@ const lightColors = {
   // Basic / 500 — idle indicators, e.g. an unfilled PIN dot
   outline: '#C5CEE0',
 
+  // The transfer hub's promo card
+  violet: '#7F5CF5',
+
   // Category tile fills, used across the kit's "to do" and promo cards
   lime: '#D8FF6F',
   peach: '#FAE3E0',
@@ -216,6 +219,8 @@ const darkColors = {
   successSubtle: '#0F2A1C',
   canvas: '#0B0E1A',
   outline: '#2E3A59',
+
+  violet: '#8E6DF7',
 
   // Category tile fills
   lime: '#D8FF6F',

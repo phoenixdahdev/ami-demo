@@ -32,7 +32,7 @@ export function SuggestionCard({ item }: { item: Suggestion }) {
         opacity: pressed ? 0.9 : 1,
       })}
     >
-      <Text variant='field' lightColor={bodyColor} style={{ width: 174 }}>
+      <Text variant='body' lightColor={bodyColor} style={{ width: 174 }}>
         {item.title}
       </Text>
 
