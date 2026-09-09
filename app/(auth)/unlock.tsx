@@ -21,6 +21,7 @@ export default function UnlockScreen() {
   const profile = useAuthStore((state) => state.profile);
   const isVerifying = useAuthStore((state) => state.isVerifying);
   const unlockWithPin = useAuthStore((state) => state.unlockWithPin);
+  const unlock = useAuthStore((state) => state.unlock);
 
   const [error, setError] = useState<string | null>(null);
   const [biometricsReady, setBiometricsReady] = useState(false);
@@ -33,8 +34,9 @@ export default function UnlockScreen() {
   const feedback = useHaptics();
 
   const enter = useCallback(() => {
+    unlock();
     router.replace('/');
-  }, []);
+  }, [unlock]);
 
   const promptBiometrics = useCallback(async () => {
     try {
@@ -47,7 +49,6 @@ export default function UnlockScreen() {
       });
 
       if (result.success) {
-        useAuthStore.getState().signIn();
         feedback('success');
         enter();
       }

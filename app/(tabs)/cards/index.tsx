@@ -7,16 +7,16 @@ import { TransactionRow } from "@/components/home/transaction-row";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import {
-  CARDS,
-  SUGGESTIONS,
-  TODOS,
-  TOTAL_BALANCE,
-  TRANSACTIONS,
-} from "@/constants/home-data";
+import { CARDS, SUGGESTIONS, TODOS } from "@/constants/home-data";
 import { useBottomTabOverflow } from "@/hooks/use-bottom-tab-overflow";
 import { useColor } from "@/hooks/use-color";
+import { formatMoney } from "@/lib/money";
 import { useAuthStore } from "@/stores/auth-store";
+import {
+  accountByLast4,
+  selectTotalBalance,
+  useLedgerStore,
+} from "@/stores/ledger-store";
 import { RADIUS } from "@/theme/globals";
 import Alert01Icon from "@hugeicons-pro/core-solid-rounded/Alert01Icon";
 import ArrowDown01Icon from "@hugeicons-pro/core-stroke-rounded/ArrowDown01Icon";
@@ -34,6 +34,10 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const profile = useAuthStore((state) => state.profile);
   const tabBar = useBottomTabOverflow();
+
+  const accounts = useLedgerStore((state) => state.accounts);
+  const transactions = useLedgerStore((state) => state.transactions);
+  const total = useLedgerStore(selectTotalBalance);
 
   const [todos, setTodos] = useState(TODOS);
 
@@ -87,7 +91,7 @@ export default function HomeScreen() {
                 }}
               >
                 <Text variant="subtitle" lightColor={bodyColor}>
-                  {TOTAL_BALANCE}
+                  {formatMoney(total)}
                 </Text>
                 <HugeiconsIcon icon={Alert01Icon} size={20} color={warning} />
               </View>
@@ -151,9 +155,22 @@ export default function HomeScreen() {
                 paddingTop: 16,
               }}
             >
-              {CARDS.map((card) => (
-                <BankCard key={card.id} card={card} width={cardWidth} />
-              ))}
+              {CARDS.map((card) => {
+                // The card and the account are the same money — the last four
+                // digits are what ties them together.
+                const account = accountByLast4(accounts, card.last4);
+                return (
+                  <BankCard
+                    key={card.id}
+                    card={card}
+                    balance={formatMoney(
+                      account?.balance ?? 0,
+                      account?.symbol ?? "$",
+                    )}
+                    width={cardWidth}
+                  />
+                );
+              })}
             </ScrollView>
           </View>
 
@@ -179,7 +196,7 @@ export default function HomeScreen() {
           </Text>
 
           <View style={{ paddingHorizontal: 28, gap: 16 }}>
-            {TRANSACTIONS.map((item) => (
+            {transactions.slice(0, 4).map((item) => (
               <TransactionRow key={item.id} item={item} />
             ))}
           </View>

@@ -3,7 +3,8 @@ import { View } from '@/components/ui/view';
 import { Spinner } from '@/components/ui/spinner';
 import { useColor } from '@/hooks/use-color';
 import { useHaptics } from '@/hooks/use-haptics';
-import { selectAccount, useAccountsStore } from '@/stores/accounts-store';
+import { toMajor } from '@/lib/money';
+import { selectAccount, useLedgerStore } from '@/stores/ledger-store';
 import { useLoanStore } from '@/stores/loan-store';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -15,11 +16,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
  */
 export default function AssessingStep() {
   const runAssessment = useLoanStore((state) => state.runAssessment);
-  const account = useAccountsStore(selectAccount);
+  const account = useLedgerStore(selectAccount);
   const feedback = useHaptics();
 
-  // The balance we hold for them is one of the model's inputs.
-  const balance = Number(account.balance.replace(/[^\d]/g, '')) || 0;
+  // The balance we hold for them is one of the model's inputs. The model works
+  // in whole currency units; the ledger keeps minor ones.
+  const balance = toMajor(account.balance);
   const started = useRef(false);
 
   const canvas = useColor('canvas');

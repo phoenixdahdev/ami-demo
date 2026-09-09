@@ -12,7 +12,16 @@ export const CARD_HEIGHT = 80;
 const ART_WIDTH = 44;
 const ART_HEIGHT = 28;
 
-export function BankCard({ card, width }: { card: BankCardModel; width: number }) {
+export function BankCard({
+  card,
+  balance,
+  width,
+}: {
+  card: BankCardModel;
+  /** Formatted by the caller, which is the one holding the ledger. */
+  balance: string;
+  width: number;
+}) {
   const onCard = useColor('primaryForeground');
   // Success / 100 — the kit tints the amount rather than using plain white.
   const amountColor = useColor('successSubtle');
@@ -20,7 +29,7 @@ export function BankCard({ card, width }: { card: BankCardModel; width: number }
   return (
     <View
       accessibilityRole='summary'
-      accessibilityLabel={`${card.label} ending ${card.last4}, ${card.balance}`}
+      accessibilityLabel={`${card.label} ending ${card.last4}, ${balance}`}
       style={{
         width,
         height: CARD_HEIGHT,
@@ -79,7 +88,7 @@ export function BankCard({ card, width }: { card: BankCardModel; width: number }
       </View>
 
       <Text variant='body' lightColor={amountColor}>
-        {card.balance}
+        {balance}
       </Text>
     </View>
   );

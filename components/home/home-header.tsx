@@ -7,6 +7,7 @@ import Notification03Icon from "@hugeicons-pro/core-stroke-rounded/Notification0
 import TradeUpIcon from "@hugeicons-pro/core-stroke-rounded/TradeUpIcon";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { IconSvgElement } from "@hugeicons/react-native";
+import { router } from "expo-router";
 import { Pressable } from "react-native";
 
 export function HomeHeader({ name }: { name: string }) {
@@ -28,9 +29,19 @@ export function HomeHeader({ name }: { name: string }) {
         gap: 12,
       }}
     >
-      <Avatar size={32}>
-        <AvatarImage source={require("../../assets/images/user-avatar.webp")} />
-      </Avatar>
+      <Pressable
+        onPress={() => router.push("/profile")}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel={`${name}. Open your account`}
+        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+      >
+        <Avatar size={32}>
+          <AvatarImage
+            source={require("../../assets/images/user-avatar.webp")}
+          />
+        </Avatar>
+      </Pressable>
 
       <Text variant="subtitle" style={{ flex: 1 }}>
         {name}

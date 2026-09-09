@@ -3,6 +3,7 @@ import { View } from '@/components/ui/view';
 import { Account } from '@/constants/accounts-data';
 import { useColor } from '@/hooks/use-color';
 import { useHaptics } from '@/hooks/use-haptics';
+import { formatMoney } from '@/lib/money';
 import { Pressable } from 'react-native';
 
 const BADGE = 44;
@@ -25,6 +26,8 @@ export function AccountRow({
   const accent = useColor(account.accent);
   const feedback = useHaptics();
 
+  const balance = formatMoney(account.balance, account.symbol);
+
   return (
     <Pressable
       onPress={() => {
@@ -32,7 +35,7 @@ export function AccountRow({
         onPress?.();
       }}
       accessibilityRole='button'
-      accessibilityLabel={`${account.name}, ending ${account.last4}, ${account.balance}`}
+      accessibilityLabel={`${account.name}, ending ${account.last4}, ${balance}`}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
@@ -64,7 +67,7 @@ export function AccountRow({
       </View>
 
       <View style={{ alignItems: 'flex-end' }}>
-        <Text variant='body'>{account.balance}</Text>
+        <Text variant='body'>{balance}</Text>
         <Text variant='caption'>{account.currency}</Text>
       </View>
     </Pressable>

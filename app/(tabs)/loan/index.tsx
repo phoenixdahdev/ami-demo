@@ -6,8 +6,14 @@ import { View } from '@/components/ui/view';
 import { useBottomTabOverflow } from '@/hooks/use-bottom-tab-overflow';
 import { useColor } from '@/hooks/use-color';
 import { BAND_LABEL, money } from '@/lib/loan-risk';
+import { formatMoney, toMinor } from '@/lib/money';
 import { useAuthStore } from '@/stores/auth-store';
-import { selectQuote, useLoanStore } from '@/stores/loan-store';
+import {
+  canAfford,
+  selectAccount,
+  useLedgerStore,
+} from '@/stores/ledger-store';
+import { buildQuote, useLoanStore } from '@/stores/loan-store';
 import { RADIUS } from '@/theme/globals';
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-solid-rounded/CheckmarkCircle02Icon';
 import File01Icon from '@hugeicons-pro/core-stroke-rounded/File01Icon';
@@ -15,6 +21,8 @@ import Image01Icon from '@hugeicons-pro/core-stroke-rounded/Image01Icon';
 import Money01Icon from '@hugeicons-pro/core-stroke-rounded/Money01Icon';
 import { HugeiconsIcon, IconSvgElement } from '@hugeicons/react-native';
 import { router } from 'expo-router';
+import { useMemo } from 'react';
+import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GUTTER = 16;
@@ -81,8 +89,17 @@ export default function LoanScreen() {
   const status = useLoanStore((state) => state.status);
   const assessment = useLoanStore((state) => state.assessment);
   const principal = useLoanStore((state) => state.principal);
-  const offer = useLoanStore(selectQuote);
-  const reset = useLoanStore((state) => state.reset);
+  // Memoised rather than selected: `buildQuote` returns a fresh object, which
+  // a zustand selector would re-render on forever.
+  const termMonths = useLoanStore((state) => state.termMonths);
+  const offer = useMemo(
+    () => buildQuote(assessment, principal, termMonths),
+    [assessment, principal, termMonths]
+  );
+  const settle = useLoanStore((state) => state.settle);
+  const disbursedTo = useLoanStore((state) => state.disbursedTo);
+  const accounts = useLedgerStore((state) => state.accounts);
+  const fallback = useLedgerStore(selectAccount);
   const tabBar = useBottomTabOverflow();
 
   const canvas = useColor('canvas');
@@ -91,6 +108,14 @@ export default function LoanScreen() {
   const bodyColor = useColor('secondaryForeground');
 
   const isActive = status === 'active' && offer;
+
+  // The account the money landed in is the account it comes back out of.
+  const payoutAccount =
+    accounts.find((account) => account.id === disbursedTo) ?? fallback;
+  // Settling early clears the principal and the financed premium, not the
+  // interest that would have accrued over the months left.
+  const payoff = offer ? toMinor(offer.principal + offer.insurance) : 0;
+  const canSettle = canAfford(payoutAccount, payoff);
 
   return (
     <View style={{ flex: 1, backgroundColor: canvas }}>
@@ -135,15 +160,31 @@ export default function LoanScreen() {
                   value={`${assessment.band} · ${BAND_LABEL[assessment.band]}`}
                 />
               ) : null}
+              <Row label='Paid into' value={payoutAccount.name} />
             </Panel>
 
             <View style={{ marginTop: 24, paddingHorizontal: GUTTER }}>
               <Button
                 variant='ghost'
-                onPress={reset}
+                onPress={() =>
+                  Alert.alert(
+                    'Settle this loan?',
+                    `${formatMoney(
+                      payoff,
+                      payoutAccount.symbol
+                    )} comes out of ${payoutAccount.name} and the loan closes.`,
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Settle', onPress: settle },
+                    ]
+                  )
+                }
+                disabled={!canSettle}
                 textStyle={{ color: bodyColor }}
               >
-                Settle and close
+                {canSettle
+                  ? `Settle and close · ${formatMoney(payoff, payoutAccount.symbol)}`
+                  : `Needs ${formatMoney(payoff, payoutAccount.symbol)} to settle`}
               </Button>
             </View>
           </>

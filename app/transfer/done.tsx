@@ -2,6 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { useColor } from '@/hooks/use-color';
+import { formatMoney, toMinor } from '@/lib/money';
+import { selectAccount, useLedgerStore } from '@/stores/ledger-store';
 import { selectAmountValue, useTransferStore } from '@/stores/transfer-store';
 import { RADIUS } from '@/theme/globals';
 import CheckmarkCircle02Icon from '@hugeicons-pro/core-solid-rounded/CheckmarkCircle02Icon';
@@ -16,6 +18,7 @@ export default function TransferDoneScreen() {
   const recipient = useTransferStore((state) => state.recipient);
   const value = useTransferStore(selectAmountValue);
   const reset = useTransferStore((state) => state.reset);
+  const source = useLedgerStore(selectAccount);
 
   const green = useColor('green');
   const bodyColor = useColor('secondaryForeground');
@@ -33,7 +36,11 @@ export default function TransferDoneScreen() {
       <HugeiconsIcon icon={CheckmarkCircle02Icon} size={64} color={green} />
 
       <Text variant='body' lightColor={bodyColor} style={{ textAlign: 'center' }}>
-        ${value} sent to {recipient.name}
+        {formatMoney(toMinor(value), source.symbol)} sent to {recipient.name}
+      </Text>
+
+      <Text variant='caption' style={{ textAlign: 'center' }}>
+        {source.name} now holds {formatMoney(source.balance, source.symbol)}
       </Text>
 
       <Button

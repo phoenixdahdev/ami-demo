@@ -6,7 +6,8 @@ import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { MIN_AMOUNT } from '@/constants/transfer-data';
 import { useColor } from '@/hooks/use-color';
-import { useAccountsStore, selectAccount } from '@/stores/accounts-store';
+import { formatMoney, toMinor } from '@/lib/money';
+import { selectAccount, useLedgerStore } from '@/stores/ledger-store';
 import { selectAmountValue, useTransferStore } from '@/stores/transfer-store';
 import { FONTS } from '@/theme/fonts';
 import { RADIUS } from '@/theme/globals';
@@ -28,7 +29,7 @@ export default function SendScreen() {
   const note = useTransferStore((state) => state.note);
   const setNote = useTransferStore((state) => state.setNote);
   const value = useTransferStore(selectAmountValue);
-  const source = useAccountsStore(selectAccount);
+  const source = useLedgerStore(selectAccount);
 
   // The amount is a styled Text over a hidden field, so the system keypad the
   // frame shows is the one that opens.
@@ -40,8 +41,10 @@ export default function SendScreen() {
   const muted = useColor('textMuted');
   const text = useColor('text');
   const primary = useColor('primary');
+  const red = useColor('red');
 
-  const canContinue = value >= MIN_AMOUNT;
+  const affordable = toMinor(value) <= source.balance;
+  const canContinue = value >= MIN_AMOUNT && affordable;
 
   return (
     <View style={{ flex: 1, backgroundColor: canvas }}>
@@ -86,7 +89,9 @@ export default function SendScreen() {
           <Text variant='subtitle'>{source.flag}</Text>
           <View style={{ flex: 1 }}>
             <Text variant='body'>{source.name}</Text>
-            <Text variant='caption'>Balance: {source.balance}</Text>
+            <Text variant='caption'>
+              Balance: {formatMoney(source.balance, source.symbol)}
+            </Text>
           </View>
           <HugeiconsIcon
             icon={ArrowDown01Icon}
@@ -109,8 +114,15 @@ export default function SendScreen() {
           >
             ${amount || '0'}
           </Text>
-          <Text variant='caption' style={{ marginTop: 4 }}>
-            Min: ${MIN_AMOUNT}
+          {/* `caption` fixes its own muted colour, so an override has to come
+              through `style`, which is flattened over it. */}
+          <Text
+            variant='caption'
+            style={{ marginTop: 4, color: affordable ? undefined : red }}
+          >
+            {affordable
+              ? `Min: $${MIN_AMOUNT}`
+              : `More than ${formatMoney(source.balance, source.symbol)} available`}
           </Text>
 
           <TextInput

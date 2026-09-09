@@ -5,13 +5,11 @@ import { TransactionRow } from '@/components/home/transaction-row';
 import { ScrollView } from '@/components/ui/scroll-view';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
-import { ACCOUNTS } from '@/constants/accounts-data';
-import { TRANSACTIONS } from '@/constants/home-data';
 import { useBottomTabOverflow } from '@/hooks/use-bottom-tab-overflow';
 import { useColor } from '@/hooks/use-color';
 import { useHaptics } from '@/hooks/use-haptics';
-import { useAccountsStore, selectAccount } from '@/stores/accounts-store';
 import { useAuthStore } from '@/stores/auth-store';
+import { selectAccount, useLedgerStore } from '@/stores/ledger-store';
 import { RADIUS } from '@/theme/globals';
 import ArrowRight01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowRight01Icon';
 import PlusSignIcon from '@hugeicons-pro/core-stroke-rounded/PlusSignIcon';
@@ -33,8 +31,10 @@ export default function AccountsScreen() {
   const tabBar = useBottomTabOverflow();
   const feedback = useHaptics();
 
-  const account = useAccountsStore(selectAccount);
-  const select = useAccountsStore((state) => state.select);
+  const accounts = useLedgerStore((state) => state.accounts);
+  const transactions = useLedgerStore((state) => state.transactions);
+  const account = useLedgerStore(selectAccount);
+  const select = useLedgerStore((state) => state.select);
 
   const canvas = useColor('canvas');
   const surface = useColor('background');
@@ -78,7 +78,7 @@ export default function AccountsScreen() {
             borderRadius: RADIUS.lg,
           }}
         >
-          {ACCOUNTS.map((item, index) => (
+          {accounts.map((item, index) => (
             <View key={item.id}>
               {index > 0 ? (
                 <View style={{ height: 1, backgroundColor: border }} />
@@ -155,7 +155,7 @@ export default function AccountsScreen() {
             gap: 16,
           }}
         >
-          {TRANSACTIONS.map((item) => (
+          {transactions.slice(0, 8).map((item) => (
             <TransactionRow key={item.id} item={item} />
           ))}
         </View>

@@ -7,6 +7,7 @@ import { View } from '@/components/ui/view';
 import { Account } from '@/constants/accounts-data';
 import { useColor } from '@/hooks/use-color';
 import { useHaptics } from '@/hooks/use-haptics';
+import { formatMoney } from '@/lib/money';
 import { RADIUS } from '@/theme/globals';
 import ArrowDataTransferHorizontalIcon from '@hugeicons-pro/core-stroke-rounded/ArrowDataTransferHorizontalIcon';
 import ArrowDown01Icon from '@hugeicons-pro/core-stroke-rounded/ArrowDown01Icon';
@@ -71,7 +72,9 @@ export function BalancePanel({
           <View
             style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
           >
-            <Text variant='heading'>{account.balance}</Text>
+            <Text variant='heading'>
+              {formatMoney(account.balance, account.symbol)}
+            </Text>
 
             <Pressable
               onPress={() => {

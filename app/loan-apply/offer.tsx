@@ -6,10 +6,11 @@ import { View } from '@/components/ui/view';
 import { useColor } from '@/hooks/use-color';
 import { useHaptics } from '@/hooks/use-haptics';
 import { BAND_LABEL, money, TERMS_MONTHS } from '@/lib/loan-risk';
-import { selectQuote, useLoanStore } from '@/stores/loan-store';
+import { buildQuote, useLoanStore } from '@/stores/loan-store';
 import { RADIUS } from '@/theme/globals';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
+import { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GUTTER = 16;
@@ -69,11 +70,16 @@ export default function OfferStep() {
   const assessment = useLoanStore((state) => state.assessment);
   const principal = useLoanStore((state) => state.principal);
   const setPrincipal = useLoanStore((state) => state.setPrincipal);
-  const termMonths = useLoanStore((state) => state.termMonths);
   const setTermMonths = useLoanStore((state) => state.setTermMonths);
   const accept = useLoanStore((state) => state.accept);
   const decline = useLoanStore((state) => state.decline);
-  const offer = useLoanStore(selectQuote);
+  // Memoised rather than selected: `buildQuote` returns a fresh object, which
+  // a zustand selector would re-render on forever.
+  const termMonths = useLoanStore((state) => state.termMonths);
+  const offer = useMemo(
+    () => buildQuote(assessment, principal, termMonths),
+    [assessment, principal, termMonths]
+  );
   const feedback = useHaptics();
 
   const canvas = useColor('canvas');

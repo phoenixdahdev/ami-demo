@@ -5,13 +5,15 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { useColor } from '@/hooks/use-color';
+import { formatMoney, toMinor } from '@/lib/money';
+import { selectAccount, useLedgerStore } from '@/stores/ledger-store';
 import { selectAmountValue, useTransferStore } from '@/stores/transfer-store';
 import { RADIUS } from '@/theme/globals';
 import Alert01Icon from '@hugeicons-pro/core-solid-rounded/Alert01Icon';
 import Edit02Icon from '@hugeicons-pro/core-stroke-rounded/Edit02Icon';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { router } from 'expo-router';
-import { Pressable } from 'react-native';
+import { Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 /** Figma 668:6949. */
@@ -76,12 +78,13 @@ export default function ReviewScreen() {
   const reference = useTransferStore((state) => state.reference);
   const value = useTransferStore(selectAmountValue);
   const isSending = useTransferStore((state) => state.isSending);
+  const source = useLedgerStore(selectAccount);
 
   const canvas = useColor('canvas');
   const bodyColor = useColor('secondaryForeground');
   const warning = useColor('warning');
 
-  const total = `$${value}`;
+  const total = formatMoney(toMinor(value), source.symbol);
 
   return (
     <View style={{ flex: 1, backgroundColor: canvas }}>
@@ -167,13 +170,33 @@ export default function ReviewScreen() {
                 Usually in seconds
               </Text>
             </Row>
+            <Row label='Paying from'>
+              <Text variant='body' lightColor={bodyColor}>
+                {source.name}
+              </Text>
+            </Row>
           </Panel>
         </ScrollView>
 
         <Button
           loading={isSending}
           onPress={async () => {
-            await useTransferStore.getState().send();
+            const entry = await useTransferStore.getState().send();
+
+            // The store refuses a debit it can't cover. Nothing on this screen
+            // can cause that, but the balance is free to move between here and
+            // the tap that started the transfer.
+            if (!entry) {
+              Alert.alert(
+                'Not enough in that account',
+                `${source.name} holds ${formatMoney(
+                  source.balance,
+                  source.symbol
+                )}.`
+              );
+              return;
+            }
+
             router.replace('/transfer/done');
           }}
           style={{

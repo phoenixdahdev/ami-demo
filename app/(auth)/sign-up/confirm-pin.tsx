@@ -1,5 +1,6 @@
 import { PinScreen } from '@/components/auth/pin-screen';
 import { useHaptics } from '@/hooks/use-haptics';
+import { startSimulation } from '@/lib/simulation';
 import { useAuthStore } from '@/stores/auth-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -18,7 +19,9 @@ export default function ConfirmPinScreen() {
       onComplete={(pin) => {
         if (confirmPin(pin)) {
           feedback('success');
-          // End of the simulated flow — into the app.
+          // End of sign up, and the start of everything else: this opens the
+          // accounts and writes the first balances to the phone.
+          startSimulation();
           router.replace('/');
           return true;
         }

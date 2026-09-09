@@ -1,10 +1,11 @@
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { Account, ACCOUNTS, OTHER_SOURCES } from "@/constants/accounts-data";
+import { Account, OTHER_SOURCES } from "@/constants/accounts-data";
 import { useColor } from "@/hooks/use-color";
 import { useHaptics } from "@/hooks/use-haptics";
-import { useAccountsStore } from "@/stores/accounts-store";
+import { formatMoney } from "@/lib/money";
+import { useLedgerStore } from "@/stores/ledger-store";
 import { FONTS } from "@/theme/fonts";
 import CheckmarkCircle02Icon from "@hugeicons-pro/core-solid-rounded/CheckmarkCircle02Icon";
 import CancelCircleIcon from "@hugeicons-pro/core-stroke-rounded/CancelCircleIcon";
@@ -88,8 +89,9 @@ function SourceRow({
 }
 
 export default function ChooseSourceScreen() {
-  const selectedId = useAccountsStore((state) => state.selectedId);
-  const select = useAccountsStore((state) => state.select);
+  const accounts = useLedgerStore((state) => state.accounts);
+  const selectedId = useLedgerStore((state) => state.selectedId);
+  const select = useLedgerStore((state) => state.select);
   const feedback = useHaptics();
   const insets = useSafeAreaInsets();
 
@@ -108,14 +110,14 @@ export default function ChooseSourceScreen() {
   const needle = query.trim().toLowerCase();
 
   const recent = useMemo(() => {
-    if (!needle) return ACCOUNTS;
-    return ACCOUNTS.filter((account) =>
-      [account.name, account.currency, account.currencyName, account.balance]
+    if (!needle) return accounts;
+    return accounts.filter((account) =>
+      [account.name, account.currency, account.currencyName]
         .join(" ")
         .toLowerCase()
         .includes(needle),
     );
-  }, [needle]);
+  }, [accounts, needle]);
 
   const others = useMemo(() => {
     if (!needle) return OTHER_SOURCES;
@@ -243,7 +245,10 @@ export default function ChooseSourceScreen() {
                 key={account.id}
                 flag={account.flag}
                 title={account.name}
-                subtitle={`Balance: ${account.balance} ${account.currency}`}
+                subtitle={`Balance: ${formatMoney(
+                  account.balance,
+                  account.symbol,
+                )} ${account.currency}`}
                 selected={account.id === selectedId}
                 onPress={() => choose(account)}
               />

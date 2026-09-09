@@ -1,11 +1,7 @@
 import { Country, DEFAULT_COUNTRY } from '@/constants/countries';
-import * as SecureStore from 'expo-secure-store';
+import { secretStorage } from '@/lib/storage';
 import { create } from 'zustand';
-import {
-  createJSONStorage,
-  persist,
-  type StateStorage,
-} from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 /** Digits required before a phone step will let you continue. */
 export const PHONE_MIN_DIGITS = 9;
@@ -35,8 +31,15 @@ type AuthState = {
   // Persisted: what a returning user still has after a relaunch.
   /** The PIN, set during sign up and checked on unlock. */
   pin: string;
+  /** There is an account on this device. Survives a relaunch.  */
   isSignedIn: boolean;
   profile: Profile;
+
+  /**
+   * Past the lock screen *this launch*. Deliberately not persisted: a
+   * returning customer should meet the PIN pad, not the balance.
+   */
+  isUnlocked: boolean;
 
   setCountry: (country: Country) => void;
   setPhone: (phone: string) => void;
@@ -46,6 +49,8 @@ type AuthState = {
   confirmPin: (candidate: string) => boolean;
   /** Unlock with the stored PIN. Resolves false when it doesn't match. */
   unlockWithPin: (candidate: string) => Promise<boolean>;
+  /** Face ID, or a PIN that checked out. */
+  unlock: () => void;
   signIn: () => void;
   signOut: () => void;
   resetDraft: () => void;
@@ -64,33 +69,6 @@ const emptyDraft = {
  */
 const SEEDED_PROFILE: Profile = { name: 'Ulvin' };
 
-const secureStorage: StateStorage = {
-  getItem: (name) => SecureStore.getItemAsync(name),
-  setItem: (name, value) => SecureStore.setItemAsync(name, value),
-  removeItem: (name) => SecureStore.deleteItemAsync(name),
-};
-
-/** Persistence is a convenience; a failure must never keep the app from booting. */
-const safeStorage = (base: StateStorage): StateStorage => ({
-  getItem: async (name) => {
-    try {
-      return await base.getItem(name);
-    } catch {
-      return null;
-    }
-  },
-  setItem: async (name, value) => {
-    try {
-      await base.setItem(name, value);
-    } catch {}
-  },
-  removeItem: async (name) => {
-    try {
-      await base.removeItem(name);
-    } catch {}
-  },
-});
-
 /**
  * Auth state for the simulated app.
  *
@@ -99,9 +77,11 @@ const safeStorage = (base: StateStorage): StateStorage => ({
  * — `confirmPin` drives sign-up's "Incorrect PIN", and `unlockWithPin` drives
  * the returning-user lock screen.
  *
- * Session and PIN persist so a relaunch lands on unlock rather than onboarding.
- * A real bank would never keep the PIN itself — it would hold a key in the
- * keychain and let the device verify — but nothing here talks to a server.
+ * The PIN and the fact of having an account persist to the keychain, so a
+ * relaunch lands on unlock rather than onboarding. Being *unlocked* does not
+ * persist. A real bank would never keep the PIN itself — it would hold a key
+ * in the keychain and let the device verify — but nothing here talks to a
+ * server.
  */
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -109,6 +89,7 @@ export const useAuthStore = create<AuthState>()(
       ...emptyDraft,
       pin: '',
       isSignedIn: false,
+      isUnlocked: false,
       profile: SEEDED_PROFILE,
 
       setCountry: (country) => set({ country }),
@@ -126,7 +107,7 @@ export const useAuthStore = create<AuthState>()(
 
       confirmPin: (candidate) => {
         const matches = candidate === get().pin;
-        if (matches) set({ isSignedIn: true });
+        if (matches) set({ isSignedIn: true, isUnlocked: true });
         return matches;
       },
 
@@ -142,17 +123,17 @@ export const useAuthStore = create<AuthState>()(
         return candidate === get().pin;
       },
 
-      signIn: () => set({ isSignedIn: true }),
-      signOut: () => set({ ...emptyDraft, pin: '', isSignedIn: false }),
+      unlock: () => set({ isUnlocked: true }),
+      signIn: () => set({ isSignedIn: true, isUnlocked: true }),
+      signOut: () =>
+        set({ ...emptyDraft, pin: '', isSignedIn: false, isUnlocked: false }),
       resetDraft: () => set(emptyDraft),
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() =>
-        safeStorage(secureStorage)
-      ),
-      // Only what a returning user should still have. The phone/OTP draft is
-      // deliberately left behind.
+      storage: secretStorage(),
+      // Only what a returning user should still have. The phone/OTP draft and
+      // the unlocked flag are deliberately left behind.
       partialize: ({ pin, isSignedIn, profile }) => ({
         pin,
         isSignedIn,

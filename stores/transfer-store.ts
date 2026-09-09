@@ -1,4 +1,11 @@
 import { RECIPIENT, Recipient } from '@/constants/transfer-data';
+import { toMinor } from '@/lib/money';
+import {
+  canAfford,
+  LedgerEntry,
+  selectAccount,
+  useLedgerStore,
+} from '@/stores/ledger-store';
 import { create } from 'zustand';
 
 /** How long the simulated send "takes". */
@@ -15,7 +22,8 @@ type TransferState = {
   setRecipient: (recipient: Recipient) => void;
   setAmount: (amount: string) => void;
   setNote: (note: string) => void;
-  send: () => Promise<void>;
+  /** Debits the selected account and writes the statement line. */
+  send: () => Promise<LedgerEntry | null>;
   reset: () => void;
 };
 
@@ -29,9 +37,12 @@ const empty = {
 
 /**
  * The transfer draft, shared across the hub, the amount step and the review.
- * `send` waits and resolves — there is nothing to talk to.
+ *
+ * Not persisted: a half-typed payment is not something to hand back to someone
+ * days later. What it produces — the movement on the account — is persisted, by
+ * the ledger.
  */
-export const useTransferStore = create<TransferState>((set) => ({
+export const useTransferStore = create<TransferState>((set, get) => ({
   ...empty,
 
   setRecipient: (recipient) => set({ recipient }),
@@ -39,9 +50,29 @@ export const useTransferStore = create<TransferState>((set) => ({
   setNote: (note) => set({ note }),
 
   send: async () => {
+    const { recipient, note, amount } = get();
+    const minor = toMinor(Number(amount || 0));
+
+    const ledger = useLedgerStore.getState();
+    const source = selectAccount(ledger);
+
+    // The screen disables the button, but the store is the thing that moves the
+    // money, so it does its own check rather than trusting the caller.
+    if (!canAfford(source, minor)) return null;
+
     set({ isSending: true });
     await new Promise((resolve) => setTimeout(resolve, SEND_MS));
+
+    const entry = ledger.post({
+      accountId: source.id,
+      merchant: recipient.name,
+      category: note.trim() || 'Transfers',
+      amount: -minor,
+      logo: 'payee',
+    });
+
     set({ isSending: false });
+    return entry;
   },
 
   reset: () => set(empty),

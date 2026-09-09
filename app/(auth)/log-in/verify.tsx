@@ -1,5 +1,5 @@
 import { OtpVerifyScreen } from '@/components/auth/otp-verify-screen';
-import { useAuthStore } from '@/stores/auth-store';
+import { resumeSimulation } from '@/lib/simulation';
 import { router } from 'expo-router';
 
 /**
@@ -9,12 +9,12 @@ import { router } from 'expo-router';
  * Logging in has no PIN step — a verified code ends the flow.
  */
 export default function LogInVerifyScreen() {
-  const signIn = useAuthStore((state) => state.signIn);
-
   return (
     <OtpVerifyScreen
       onVerified={() => {
-        signIn();
+        // Opens the session, and opens the accounts if this device has never
+        // had any — someone can arrive here without signing up first.
+        resumeSimulation();
         router.replace('/');
       }}
     />
